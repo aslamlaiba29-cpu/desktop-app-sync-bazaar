@@ -26,7 +26,18 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     DEBUG = False
     ENV = "production"
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///prod.db")
+    
+    # Render and Heroku database URLs start with 'postgres://', 
+    # but SQLAlchemy requires 'postgresql://' to function correctly.
+    db_url = os.environ.get("DATABASE_URL", "sqlite:///prod.db")
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    
+    SQLALCHEMY_DATABASE_URI = db_url
 
-# Expose Config class so config.from_object('config.Config') works
-Config = DevelopmentConfig
+# Determine the active config class based on the environment.
+# Render automatically injects the 'RENDER' environment variable.
+if os.environ.get("RENDER") is not None or os.environ.get("FLASK_ENV") == "production":
+    Config = ProductionConfig
+else:
+    Config = DevelopmentConfig
