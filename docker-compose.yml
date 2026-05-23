@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: synchronized_bazar_app
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=dev-secret-key-docker
+    volumes:
+      - ./instance:/app/instance
+      - ./logs:/app/logs
