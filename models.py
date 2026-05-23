@@ -3,7 +3,34 @@
 This file allows the Flask app to import `db` directly from `models` as requested.
 """
 
-# Import the actual implementations from the backend package
-from backend.models import db, ProcessModel, CodeReview
+from backend.models import (
+    db,
+    User,
+    Product,
+    CartItem,
+    WishlistItem,
+    Order,
+    OrderItem,
+    Review,
+    Notification,
+    SPIRecord,
+    CodeSmell,
+    CodeReview,
+    TestResult
+)
 
-__all__ = ["db", "ProcessModel", "CodeReview"]
+__all__ = [
+    "db",
+    "User",
+    "Product",
+    "CartItem",
+    "WishlistItem",
+    "Order",
+    "OrderItem",
+    "Review",
+    "Notification",
+    "SPIRecord",
+    "CodeSmell",
+    "CodeReview",
+    "TestResult"
+]

@@ -3,56 +3,1922 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sync Bazar - SE Dashboard</title>
-    <!-- Tailwind CSS for modern look -->
+    <title>Synchronized Bazar - SE Suite</title>
+    <!-- Tailwind CSS v4 compiler -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for real-time graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+        }
+        .header-title {
+            font-family: 'Outfit', sans-serif;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px 0 rgba(129, 140, 248, 0.15);
+        }
+        .console-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .console-scrollbar::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        .console-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .console-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="p-0 m-0 overflow-x-hidden">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 shadow-md">
-        <h1 class="text-2xl font-bold">Sync Bazar - Desktop Suite</h1>
-        <p class="text-xs opacity-80">Software Process & Quality Management Application</p>
-    </header>
+    <!-- Active User Header -->
+    <nav class="glass-card sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🔄</span>
+            <div>
+                <h1 class="header-title text-xl font-bold tracking-wide bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    SYNCHRONIZED BAZAR STORE
+                </h1>
+                <p class="text-xs text-slate-400">Software Construction Semester Suite</p>
+            </div>
+        </div>
 
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex items-center space-x-6">
+            <!-- Sync Status Indicator -->
+            <div class="flex items-center space-x-2 text-xs bg-slate-900/60 px-3 py-1.5 rounded-full border border-slate-800">
+                <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="sync-status" class="text-emerald-400 font-mono font-medium">Sync Active (SSE)</span>
+            </div>
+
+            <!-- User Auth Bar -->
+            <div id="auth-bar" class="text-sm flex items-center space-x-3">
+                <span class="text-slate-400">Loading auth...</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
         
-        <!-- 1. Process Models & SPI -->
-        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
-            <h2 class="text-xl font-bold mb-3 text-gray-800">1. Process Model & SPI Tracker</h2>
-            <p class="text-sm text-gray-600 mb-4">CMMI Maturity frameworks and metric tracking.</p>
-            <div class="space-y-2">
-                <button onclick="alert('Agile Model Selected!')" class="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 w-full text-left">✦ Select Process Model (Agile/Waterfall)</button>
-                <button onclick="alert('SPI Calculator: Defect Density is within limits.')" class="bg-emerald-500 text-white px-4 py-2 rounded text-sm hover:bg-emerald-600 w-full text-left">📊 Run SPI Assessment</button>
+        <!-- Sidebar Navigation / Status -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Nav Menu -->
+            <div class="glass-card rounded-2xl p-4 space-y-2">
+                <h3 class="text-xs uppercase text-slate-400 font-semibold px-3 mb-3 tracking-wider">Marketplace Modules</h3>
+                <button onclick="switchTab('marketplace-tab')" id="btn-marketplace-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-indigo-400 bg-slate-800/80 shadow-inner">
+                    <span>🛍️</span>
+                    <span>Storefront (Customer)</span>
+                </button>
+                <button onclick="switchTab('vendor-tab')" id="btn-vendor-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>📊</span>
+                    <span>Vendor Dashboard</span>
+                </button>
+                <button onclick="switchTab('admin-tab')" id="btn-admin-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>🛡️</span>
+                    <span>Admin Controls</span>
+                </button>
+
+                <h3 class="text-xs uppercase text-slate-400 font-semibold px-3 mt-6 mb-3 tracking-wider">Engineering Suite</h3>
+                <button onclick="switchTab('agile-tab')" id="btn-agile-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>📅</span>
+                    <span>Agile Kanban & Rationale</span>
+                </button>
+                <button onclick="switchTab('spi-tab')" id="btn-spi-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>📉</span>
+                    <span>CMMI & SPI Assessment</span>
+                </button>
+                <button onclick="switchTab('git-tab')" id="btn-git-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>⌥</span>
+                    <span>Git & Pull Requests</span>
+                </button>
+                <button onclick="switchTab('refactor-tab')" id="btn-refactor-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>🔍</span>
+                    <span>Legacy Refactoring</span>
+                </button>
+                <button onclick="switchTab('testing-tab')" id="btn-testing-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>🧪</span>
+                    <span>Automated pytest</span>
+                </button>
+                <button onclick="switchTab('logs-tab')" id="btn-logs-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>🚨</span>
+                    <span>Exception & JSON Logs</span>
+                </button>
+                <button onclick="switchTab('docs-tab')" id="btn-docs-tab" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200">
+                    <span>📖</span>
+                    <span>Project Docs Hub</span>
+                </button>
+            </div>
+
+            <!-- Live Real-Time Ticker -->
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs uppercase text-slate-300 font-bold tracking-wider">Live Sync Events</h3>
+                    <span class="w-1.5 h-1.5 bg-sky-500 rounded-full animate-ping"></span>
+                </div>
+                <div id="sync-ticker" class="h-44 text-xs font-mono overflow-y-auto space-y-2.5 console-scrollbar pr-2 text-slate-400">
+                    <div class="text-sky-400 border-l border-sky-500 pl-2 py-0.5">Initializing broker...</div>
+                </div>
             </div>
         </div>
 
-        <!-- 2. Version Control & Reviews -->
-        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
-            <h2 class="text-xl font-bold mb-3 text-gray-800">2. Version Control & Code Review</h2>
-            <p class="text-sm text-gray-600 mb-4">Manage mock repositories and code quality reviews.</p>
-            <div class="space-y-2">
-                <button onclick="alert('Mock Git: Branch main is up to date.')" class="bg-purple-500 text-white px-4 py-2 rounded text-sm hover:bg-purple-600 w-full text-left">⌥ Check Git Status</button>
-                <button onclick="alert('Opening Code Review Interface...')" class="bg-indigo-500 text-white px-4 py-2 rounded text-sm hover:bg-indigo-600 w-full text-left">✍ Start Code Review</button>
+        <!-- Main Dashboard Workspace -->
+        <div class="lg:col-span-3 space-y-8">
+            
+            <!-- Floating alerts -->
+            <div id="alert-banner" class="hidden glass-card border-red-500/30 bg-red-950/40 text-red-200 px-6 py-4 rounded-xl flex items-center justify-between">
+                <div class="flex items-center space-x-3 text-sm">
+                    <span>⚠️</span>
+                    <span id="alert-message"></span>
+                </div>
+                <button onclick="closeAlert()" class="text-red-400 hover:text-red-200">✕</button>
             </div>
-        </div>
 
-        <!-- 3. Legacy Refactoring & Exceptions -->
-        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-amber-500">
-            <h2 class="text-xl font-bold mb-3 text-gray-800">3. Legacy Code & Error Logging</h2>
-            <p class="text-sm text-gray-600 mb-4">Identify code smells and trigger safe exception handling.</p>
-            <button onclick="alert('Code Smells found: 3 God Objects, 5 Long Methods.')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm hover:bg-amber-600 w-full mb-2 block text-left">🔍 Scan for Code Smells</button>
-            <button onclick="fetch('/trigger-error').then(r => r.json()).then(d => alert('System Intercepted Error: ' + d.message))" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 w-full text-left">🚨 Test Exception Handling</button>
-        </div>
+            <div id="success-banner" class="hidden glass-card border-emerald-500/30 bg-emerald-950/40 text-emerald-200 px-6 py-4 rounded-xl flex items-center justify-between">
+                <div class="flex items-center space-x-3 text-sm">
+                    <span>✓</span>
+                    <span id="success-message"></span>
+                </div>
+                <button onclick="closeSuccess()" class="text-emerald-400 hover:text-emerald-200">✕</button>
+            </div>
 
-        <!-- 4. Automated Unit Testing -->
-        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-emerald-500">
-            <h2 class="text-xl font-bold mb-3 text-gray-800">4. Automated Testing Suite</h2>
-            <p class="text-sm text-gray-600 mb-4">Run unit and integration tests instantly.</p>
-            <button onclick="alert('Running PyTest... 4/4 Tests Passed (100% Coverage)')" class="bg-emerald-600 text-white px-4 py-2 rounded text-sm hover:bg-emerald-700 w-full text-left">🧪 Run Automated Tests</button>
-        </div>
+            <!-- MODULE TABS -->
 
+            <!-- TAB 1: STOREFRONT -->
+            <div id="marketplace-tab" class="tab-pane space-y-8">
+                <!-- Search & Filters -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full md:w-80">
+                        <span class="absolute left-3.5 top-3.5 text-slate-400">🔍</span>
+                        <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="Search catalog..." class="w-full bg-slate-900/60 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-indigo-500 text-slate-100 placeholder-slate-500">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="filterCategory('All')" class="category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow">All</button>
+                        <button onclick="filterCategory('Electronics')" class="category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/60 text-slate-300">Electronics</button>
+                        <button onclick="filterCategory('Apparel')" class="category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/60 text-slate-300">Apparel</button>
+                        <button onclick="filterCategory('Groceries')" class="category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/60 text-slate-300">Groceries</button>
+                        <button onclick="filterCategory('Books')" class="category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/60 text-slate-300">Books</button>
+                        
+                        <button onclick="openCart()" class="relative bg-slate-900 border border-indigo-500/20 text-indigo-400 hover:text-indigo-200 px-4 py-3 rounded-xl text-sm flex items-center space-x-2 ml-4">
+                            <span>🛒 Cart</span>
+                            <span id="cart-badge" class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="space-y-4">
+                    <h2 class="header-title text-2xl font-bold text-slate-100">Bazar Store Catalog</h2>
+                    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: VENDOR DASHBOARD -->
+            <div id="vendor-tab" class="tab-pane hidden space-y-8">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-indigo-500">
+                        <p class="text-xs text-slate-400 font-medium">Total Store Revenue</p>
+                        <h4 class="text-3xl font-extrabold text-white mt-2 font-mono">$1,450.25</h4>
+                        <span class="text-emerald-400 text-xs mt-1 block">▲ +12% in the last hour</span>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-purple-500">
+                        <p class="text-xs text-slate-400 font-medium">Active Inventory Listings</p>
+                        <h4 id="vendor-product-count" class="text-3xl font-extrabold text-white mt-2 font-mono">0</h4>
+                        <span class="text-slate-400 text-xs mt-1 block">Live stock sync active</span>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-amber-500">
+                        <p class="text-xs text-slate-400 font-medium">Understock Warnings</p>
+                        <h4 id="vendor-warning-count" class="text-3xl font-extrabold text-amber-400 mt-2 font-mono">0</h4>
+                        <span class="text-slate-400 text-xs mt-1 block">Products below 10 items</span>
+                    </div>
+                </div>
+
+                <!-- Vendor operations split layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Create Product Form -->
+                    <div class="lg:col-span-1 glass-card rounded-2xl p-6 h-fit">
+                        <h3 class="header-title text-lg font-bold text-slate-100 mb-5">➕ Add Product to Bazar</h3>
+                        <form id="product-form" onsubmit="handleCreateProduct(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Product Name</label>
+                                <input type="text" id="p-name" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Category</label>
+                                <select id="p-category" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Apparel">Apparel</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Books">Books</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Price ($)</label>
+                                    <input type="number" step="0.01" id="p-price" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Stock</label>
+                                    <input type="number" id="p-stock" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Description</label>
+                                <textarea id="p-desc" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer">
+                                Publish Product
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Manage stock inventory -->
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-5">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📋 Inventory Stock Levels</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="text-xs uppercase bg-slate-900 text-slate-400">
+                                    <tr>
+                                        <th class="p-3">Product Name</th>
+                                        <th class="p-3 text-right">Price</th>
+                                        <th class="p-3 text-center">Current Stock</th>
+                                        <th class="p-3 text-center">Stock Control</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendor-products-body">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Management -->
+                <div class="glass-card rounded-2xl p-6 space-y-5">
+                    <h3 class="header-title text-lg font-bold text-slate-100">📦 Vendor Order Processing</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="text-xs uppercase bg-slate-900 text-slate-400">
+                                <tr>
+                                    <th class="p-3">Order ID</th>
+                                    <th class="p-3">Customer</th>
+                                    <th class="p-3">Ordered Items</th>
+                                    <th class="p-3 text-right">Amount</th>
+                                    <th class="p-3 text-center">Status</th>
+                                    <th class="p-3 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendor-orders-body">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ADMIN CONTROLS -->
+            <div id="admin-tab" class="tab-pane hidden space-y-8">
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-card rounded-2xl p-5 text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Total Customers</p>
+                        <h4 class="text-3xl font-extrabold text-white mt-1">4</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Total Vendors</p>
+                        <h4 class="text-3xl font-extrabold text-indigo-400 mt-1">2</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Average Review Rating</p>
+                        <h4 class="text-3xl font-extrabold text-amber-400 mt-1">4.7 ★</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase">System Lockouts</p>
+                        <h4 class="text-3xl font-extrabold text-emerald-400 mt-1">0</h4>
+                    </div>
+                </div>
+
+                <!-- Admin Moderation & Moderation lists -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- User Management -->
+                    <div class="glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">👥 Marketplace Accounts</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3.5 bg-slate-900/60 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="font-medium text-slate-200">admin <span class="text-[10px] bg-red-900/50 text-red-300 border border-red-500/20 px-1.5 py-0.5 rounded font-mono ml-2">ADMIN</span></div>
+                                    <span class="text-xs text-slate-500">admin@syncbazar.com</span>
+                                </div>
+                                <span class="text-emerald-400 text-xs">● Active Session</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-900/60 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="font-medium text-slate-200">vendor1 <span class="text-[10px] bg-indigo-900/50 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5 rounded font-mono ml-2">VENDOR</span></div>
+                                    <span class="text-xs text-slate-500">vendor1@syncbazar.com</span>
+                                </div>
+                                <span class="text-slate-400 text-xs">Offline</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-900/60 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="font-medium text-slate-200">vendor2 <span class="text-[10px] bg-indigo-900/50 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5 rounded font-mono ml-2">VENDOR</span></div>
+                                    <span class="text-xs text-slate-500">vendor2@syncbazar.com</span>
+                                </div>
+                                <span class="text-slate-400 text-xs">Offline</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-900/60 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="font-medium text-slate-200">customer1 <span class="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-1.5 py-0.5 rounded font-mono ml-2">CUSTOMER</span></div>
+                                    <span class="text-xs text-slate-500">customer1@syncbazar.com</span>
+                                </div>
+                                <span class="text-slate-400 text-xs">Offline</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Moderation -->
+                    <div class="glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">🛡️ Product Moderation Board</h3>
+                        <p class="text-xs text-slate-400">Approve or reject vendor listings before they display on customer shelves.</p>
+                        <div id="admin-product-moderation-list" class="space-y-3">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: AGILE KANBAN BOARD -->
+            <div id="agile-tab" class="tab-pane hidden space-y-8">
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <h2 class="header-title text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                        Sprint Planning & Team Agile Methodology
+                    </h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        The "Synchronized Bazar Store" application was built following the <strong>Agile/Scrum Framework</strong>. Agile was chosen over Waterfall because real-time synchronization requirements, dynamic vendor inventory levels, and complex cart state models required continuous iteration, feedback cycles, and short sprint cycles to tackle integration risk.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="bg-indigo-950/20 border border-indigo-500/10 p-4 rounded-xl">
+                            <h4 class="text-sm font-bold text-indigo-400">📅 Agile Iterative Sprints</h4>
+                            <ul class="text-xs text-slate-400 mt-2 list-disc list-inside space-y-1">
+                                <li><strong>Sprint 1</strong>: Authentication & DB SQL schema definitions.</li>
+                                <li><strong>Sprint 2</strong>: Real-time SSE Stock Broadcasting implementation.</li>
+                                <li><strong>Sprint 3</strong>: Static Analysis scanners & PyTest code suites.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-purple-950/20 border border-purple-500/10 p-4 rounded-xl">
+                            <h4 class="text-sm font-bold text-purple-400">👥 Team Roles & Contributions</h4>
+                            <ul class="text-xs text-slate-400 mt-2 list-disc list-inside space-y-1">
+                                <li><strong>Frontend Developer (aslamlaiba29-cpu)</strong>: Designed glassmorphic CSS widgets.</li>
+                                <li><strong>Backend/Sync Engineer</strong>: Built SQLite models and SSE brokers.</li>
+                                <li><strong>QA Lead</strong>: Set up automatic test assertions and subprocess runners.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Scrum Board -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Column 1 -->
+                    <div class="glass-card rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold uppercase text-red-400 tracking-wider">📋 Sprint Backlog (3)</h4>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">AUTH</span>
+                            <p class="font-medium text-slate-200">OAuth integration for Google/GitHub logins</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">PAY</span>
+                            <p class="font-medium text-slate-200">Stripe Payment Gateway Integration Mockup</p>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div class="glass-card rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold uppercase text-amber-400 tracking-wider">⏳ In Progress (1)</h4>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-indigo-900/50 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5 rounded text-[10px]">UI/UX</span>
+                            <p class="font-medium text-slate-200">Develop dark/light mode toggle with theme cookies</p>
+                        </div>
+                    </div>
+                    <!-- Column 3 -->
+                    <div class="glass-card rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold uppercase text-sky-400 tracking-wider">🔬 QA Review (1)</h4>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-sky-900/50 text-sky-300 border border-sky-500/20 px-1.5 py-0.5 rounded text-[10px]">TESTS</span>
+                            <p class="font-medium text-slate-200">Verify test coverage reports using subprocess API</p>
+                        </div>
+                    </div>
+                    <!-- Column 4 -->
+                    <div class="glass-card rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold uppercase text-emerald-400 tracking-wider">✓ Completed (3)</h4>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-emerald-900/50 text-emerald-300 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">CORE</span>
+                            <p class="font-medium text-slate-200">Set up SQLite database and relationships</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                            <span class="bg-emerald-900/50 text-emerald-300 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">SYNC</span>
+                            <p class="font-medium text-slate-200">Establish SSE real-time stock sync channels</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: CMMI & SPI ASSESSMENT -->
+            <div id="spi-tab" class="tab-pane hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Assess Form -->
+                    <div class="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📊 Assess SPI Metrics</h3>
+                        <p class="text-xs text-slate-400">Evaluate application compliance with targets (CMMI Level 3 limits defect density to <= 0.5).</p>
+                        <form onsubmit="handleSPIAssessment(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">CMMI Target Level</label>
+                                <select id="spi-cmmi-level" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100">
+                                    <option value="2">Level 2 (Waterfall/Documented)</option>
+                                    <option value="3" selected>Level 3 (Agile/Quantitative)</option>
+                                    <option value="5">Level 5 (Continuous Optimizing)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Defect Density (defects/KLOC)</label>
+                                <input type="number" step="0.01" id="spi-defect" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Sprint Velocity (Story points)</label>
+                                <input type="number" id="spi-velocity" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer">
+                                Calculate Maturity Score
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Visual Graph History -->
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📈 SPI Evolution Trend</h3>
+                        <div class="h-64 flex items-center justify-center bg-slate-900/40 rounded-xl border border-slate-800/40 p-4">
+                            <canvas id="spiHistoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: GIT & PULL REQUESTS -->
+            <div id="git-tab" class="tab-pane hidden space-y-8">
+                <!-- Git Actions -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="header-title text-xl font-bold text-slate-100">⌥ Mock Version Control Interface</h2>
+                        <span id="git-branch-badge" class="bg-indigo-900/80 text-indigo-300 border border-indigo-500/20 text-xs px-3 py-1 rounded-full font-mono font-medium">branch: main</span>
+                    </div>
+                    <form onsubmit="handleGitCommit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="md:col-span-1">
+                            <label class="block text-xs text-slate-400 mb-1">Target Branch</label>
+                            <input type="text" id="git-branch" value="main" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs text-slate-400 mb-1">Commit Message</label>
+                            <input type="text" id="git-message" required placeholder="e.g. feature/cart-system: update totals logic" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100">
+                        </div>
+                        <div class="md:col-span-1">
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer">
+                                Git Commit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Commit Logs -->
+                    <div class="glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📝 Git Commit History</h3>
+                        <div id="git-history-container" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 console-scrollbar">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Peer Review Hub -->
+                    <div class="glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">👥 Git Pull Request & Peer Reviews</h3>
+                        <p class="text-xs text-slate-400">Simulate peer review inspect logs before merging features.</p>
+                        
+                        <div class="space-y-3">
+                            <!-- PR 1 -->
+                            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-emerald-400">✓ PR #3 Merged</span>
+                                    <span class="text-[10px] text-slate-500 font-mono">feature/cart-system</span>
+                                </div>
+                                <p class="text-xs font-bold text-slate-200">Refactored modular cart formulas</p>
+                                <div class="text-[11px] text-slate-400 border-l border-slate-700 pl-2 mt-2 bg-slate-950/20 p-2 rounded">
+                                    <strong>Peer Reviewer (QA Lead):</strong> "The cart subtotal formulas include 8% tax calculations. Added tests for edge cases where quantity is zero. Code looks modular and ready for merge."
+                                </div>
+                            </div>
+                            <!-- PR 2 -->
+                            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-amber-400">⚠ PR #4 Open</span>
+                                    <span class="text-[10px] text-slate-500 font-mono">feature/authentication</span>
+                                </div>
+                                <p class="text-xs font-bold text-slate-200">Implements OAuth password hashing</p>
+                                <div class="text-[11px] text-slate-400 border-l border-slate-700 pl-2 mt-2 bg-slate-950/20 p-2 rounded">
+                                    <strong>Peer Reviewer (Admin):</strong> "Checked the security levels of `generate_password_hash`. Needs a unit test validating lockout procedures for wrong passwords. Changes requested."
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: LEGACY REFACTORING -->
+            <div id="refactor-tab" class="tab-pane hidden space-y-8">
+                <!-- Analysis triggers -->
+                <div class="glass-card rounded-2xl p-6 flex items-center justify-between border-b border-indigo-500/20">
+                    <div>
+                        <h2 class="header-title text-xl font-bold text-slate-100">🔍 Lehman's Laws & Legacy Code Scanner</h2>
+                        <p class="text-xs text-slate-400 mt-1">Scan Python modules for code smells (global states, long parameter lists, long lines).</p>
+                    </div>
+                    <button onclick="runCodeSmellScan()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-5 py-3 rounded-lg transition-colors cursor-pointer">
+                        Run Code Scan
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Found Smells -->
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📋 Detected Code Smells</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="text-xs uppercase bg-slate-900 text-slate-400">
+                                    <tr>
+                                        <th class="p-3">File / Line</th>
+                                        <th class="p-3">Smell Type</th>
+                                        <th class="p-3">Description</th>
+                                        <th class="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="code-smells-body">
+                                    <tr>
+                                        <td colspan="4" class="p-4 text-center text-slate-500">No scans executed yet. Click "Run Code Scan".</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Lehman Explanation -->
+                    <div class="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📜 Lehman's Evolution Laws</h3>
+                        <div class="space-y-4 text-xs text-slate-400">
+                            <div class="p-3 bg-slate-900 rounded-lg">
+                                <h4 class="font-bold text-slate-200">1. Continuing Change</h4>
+                                <p class="mt-1 leading-relaxed">System must undergo continuous evolution to remain satisfactory (e.g. adding active wishlists and user moderation).</p>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-lg">
+                                <h4 class="font-bold text-slate-200">2. Increasing Complexity</h4>
+                                <p class="mt-1 leading-relaxed">As program evolves, complexity increases unless work is done to refactor and modularize it (e.g. extracting code smells).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Before & After refactoring cards -->
+                <div class="glass-card rounded-2xl p-6 space-y-5">
+                    <h3 class="header-title text-lg font-bold text-slate-100">✨ Refactoring Examples (Before vs After)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                        <div class="bg-red-950/20 border border-red-500/10 p-5 rounded-xl space-y-3">
+                            <h4 class="text-red-400 font-bold uppercase text-[10px] tracking-wider">❌ Before: Tightly Coupled Cart Calculations</h4>
+                            <pre class="overflow-x-auto text-slate-400 text-[11px] leading-relaxed">
+def calculate_cart_totals(items):
+    subtotal = 0
+    # Calculations are direct and hardcoded
+    for item in items:
+        subtotal += item['price'] * item['qty']
+    # Hardcoded tax rates and shipping rules inside API
+    tax = subtotal * 0.08
+    shipping = 10.0
+    total = subtotal + tax + shipping
+    return subtotal, tax, shipping, total
+                            </pre>
+                        </div>
+                        <div class="bg-emerald-950/20 border border-emerald-500/10 p-5 rounded-xl space-y-3">
+                            <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-wider">✓ After: Modularized Refactored Pattern</h4>
+                            <pre class="overflow-x-auto text-slate-400 text-[11px] leading-relaxed">
+class CartManager:
+    TAX_RATE = 0.08
+    FLAT_SHIPPING = 10.0
+
+    @classmethod
+    def get_totals(cls, subtotal):
+        # Configuration is encapsulated
+        tax = round(subtotal * cls.TAX_RATE, 2)
+        shipping = cls.FLAT_SHIPPING if subtotal > 0 else 0
+        grand_total = round(subtotal + tax + shipping, 2)
+        return {"subtotal": subtotal, "tax": tax, "shipping": shipping, "grand_total": grand_total}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: AUTOMATED PYTEST -->
+            <div id="testing-tab" class="tab-pane hidden space-y-8">
+                <!-- Test executor -->
+                <div class="glass-card rounded-2xl p-6 flex items-center justify-between border-b border-indigo-500/20">
+                    <div>
+                        <h2 class="header-title text-xl font-bold text-slate-100">🧪 PyTest Automated Testing Runner</h2>
+                        <p class="text-xs text-slate-400 mt-1">Triggers python-based pytest unit test assertion logs programmatically.</p>
+                    </div>
+                    <button id="run-tests-btn" onclick="executePytests()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-5 py-3 rounded-lg transition-colors cursor-pointer flex items-center space-x-2">
+                        <span>🧪 Run Suite</span>
+                    </button>
+                </div>
+
+                <!-- Split layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Progress Bar / Results grid -->
+                    <div class="lg:col-span-1 glass-card rounded-2xl p-6 space-y-6">
+                        <h3 class="header-title text-lg font-bold text-slate-100">📊 Suite Summary</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-400 mb-1.5">
+                                    <span>Pass Rate</span>
+                                    <span id="test-pass-rate" class="font-bold text-emerald-400">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                                    <div id="test-progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase">Passed</div>
+                                    <div id="test-passed-count" class="text-xl font-extrabold text-emerald-400 mt-1 font-mono">0</div>
+                                </div>
+                                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase">Failed</div>
+                                    <div id="test-failed-count" class="text-xl font-extrabold text-red-400 mt-1 font-mono">0</div>
+                                </div>
+                                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase">Total</div>
+                                    <div id="test-total-count" class="text-xl font-extrabold text-slate-300 mt-1 font-mono">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Individual Test assertions list -->
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-bold uppercase text-slate-300 tracking-wider">Test Assertions</h4>
+                            <div id="test-assertions-list" class="space-y-2.5 max-h-[220px] overflow-y-auto pr-2 console-scrollbar text-xs">
+                                <div class="text-slate-500 text-center py-4">No tests executed yet.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raw output console -->
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-4">
+                        <h3 class="header-title text-lg font-bold text-slate-100">💻 pytest Console Log Output</h3>
+                        <pre id="test-console-output" class="bg-slate-950 border border-slate-900 rounded-xl p-4 text-[11px] font-mono text-slate-400 h-96 overflow-auto console-scrollbar">
+Run pytest to view standard console output assertions.
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: LOGS & EXCEPTIONS -->
+            <div id="logs-tab" class="tab-pane hidden space-y-8">
+                <!-- Trigger exceptions -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <h2 class="header-title text-xl font-bold text-slate-100">🚨 Exception Interception Monitor</h2>
+                    <p class="text-xs text-slate-400">Trigger custom API exceptions and see how the global error handler intercepts the payload, maps status codes, and outputs structured JSON logs.</p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="triggerAPIError('/api/process/assess', {defect_density: 0.99, velocity: 15, maturity_level: 3})" class="bg-red-900/60 hover:bg-red-800/80 text-red-200 border border-red-500/20 font-semibold text-xs px-5 py-3 rounded-lg transition-colors cursor-pointer">
+                            Trigger Defect Assessment Exception (422)
+                        </button>
+                        <button onclick="triggerAPIError('/api/products/9999', {}, 'GET')" class="bg-amber-900/60 hover:bg-amber-800/80 text-amber-200 border border-amber-500/20 font-semibold text-xs px-5 py-3 rounded-lg transition-colors cursor-pointer">
+                            Trigger Missing Product 404 Exception
+                        </button>
+                        <button onclick="triggerAPIError('/api/orders/checkout', {})" class="bg-pink-900/60 hover:bg-pink-800/80 text-pink-200 border border-pink-500/20 font-semibold text-xs px-5 py-3 rounded-lg transition-colors cursor-pointer">
+                            Trigger Out-of-Stock Checkout Exception (400)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Structured Logs View -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-4">
+                        <div>
+                            <h3 class="header-title text-lg font-bold text-slate-100">📋 JSON-Structured Debug Log Terminal</h3>
+                            <p class="text-xs text-slate-400 mt-1">Real-time log capture from `logs/app.log` formatted as structured JSON logs.</p>
+                        </div>
+                        <button onclick="fetchAppLogs()" class="bg-indigo-900/60 border border-indigo-500/20 text-indigo-400 hover:text-indigo-200 font-semibold text-xs px-4 py-2.5 rounded-lg transition-all cursor-pointer">
+                            🔄 Refresh Log
+                        </button>
+                    </div>
+
+                    <div id="logs-container" class="h-96 overflow-y-auto space-y-3 bg-slate-950/60 border border-slate-900 p-4 rounded-xl console-scrollbar">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 10: DOCUMENTATION HUB -->
+            <div id="docs-tab" class="tab-pane hidden space-y-8">
+                <!-- Sub tabs for various docs -->
+                <div class="glass-card rounded-2xl p-6 space-y-6">
+                    <h2 class="header-title text-2xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">
+                        Academic Documentation Hub
+                    </h2>
+                    
+                    <div class="border-b border-slate-800">
+                        <nav class="flex space-x-6 text-sm font-medium">
+                            <button onclick="switchDocTab('doc-schema')" class="doc-tab-btn pb-3 border-b-2 border-indigo-500 text-indigo-400">Database Schema</button>
+                            <button onclick="switchDocTab('doc-api')" class="doc-tab-btn pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">API Specifications</button>
+                            <button onclick="switchDocTab('doc-slides')" class="doc-tab-btn pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Presentation Slides</button>
+                            <button onclick="switchDocTab('doc-deploy')" class="doc-tab-btn pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Deployment Guide</button>
+                            <button onclick="switchDocTab('doc-report')" class="doc-tab-btn pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Report Outline</button>
+                        </nav>
+                    </div>
+
+                    <!-- Doc Section 1: Database Schema -->
+                    <div id="doc-schema" class="doc-pane space-y-4">
+                        <h3 class="text-lg font-bold text-slate-200">SQLite Database Schema Relationship Model</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            The relational database consists of 11 normalized tables managed via SQLAlchemy. Cascading rules are established on cart items and wishlist entries.
+                        </p>
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-xs font-mono overflow-x-auto space-y-3">
+                            <h4 class="text-indigo-400 font-bold uppercase">Mermaid Entity-Relationship Diagram</h4>
+                            <pre class="text-slate-400 text-[11px] leading-relaxed">
+erDiagram
+    USERS ||--o{ PRODUCTS : owns
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ CART_ITEMS : maintains
+    USERS ||--o{ WISHLIST_ITEMS : tracks
+    USERS ||--o{ REVIEWS : writes
+    USERS ||--o{ NOTIFICATIONS : receives
+
+    PRODUCTS ||--o{ CART_ITEMS : contains
+    PRODUCTS ||--o{ WISHLIST_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : ordered
+    PRODUCTS ||--o{ REVIEWS : rated
+
+    ORDERS ||--|{ ORDER_ITEMS : details
+                            </pre>
+                        </div>
+                    </div>
+
+                    <!-- Doc Section 2: API Specification -->
+                    <div id="doc-api" class="doc-pane hidden space-y-4">
+                        <h3 class="text-lg font-bold text-slate-200">Synchronized Bazar HTTP REST API Routes</h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800 flex justify-between">
+                                <span class="font-mono text-indigo-400 font-semibold">POST /api/auth/register</span>
+                                <span class="text-slate-400">Registers a User session (Customer, Vendor, Admin)</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800 flex justify-between">
+                                <span class="font-mono text-indigo-400 font-semibold">POST /api/orders/checkout</span>
+                                <span class="text-slate-400">Submits cart, validates stock levels, decrement products, announcements</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800 flex justify-between">
+                                <span class="font-mono text-indigo-400 font-semibold">GET /api/sync/stream</span>
+                                <span class="text-slate-400">Server-Sent Events (SSE) stream client channels</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800 flex justify-between">
+                                <span class="font-mono text-indigo-400 font-semibold">POST /api/legacy/scan</span>
+                                <span class="text-slate-400">Runs static analyzer parsing python code smells</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800 flex justify-between">
+                                <span class="font-mono text-indigo-400 font-semibold">POST /api/testing/run</span>
+                                <span class="text-slate-400">Launches pytest subprocess parsing outputs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doc Section 3: Slides -->
+                    <div id="doc-slides" class="doc-pane hidden space-y-4">
+                        <h3 class="text-lg font-bold text-slate-200">Presentation Deck Slide Outline</h3>
+                        <div class="space-y-3 text-xs text-slate-400 leading-relaxed">
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <h4 class="font-bold text-slate-200">Slide 1: Title & Project Overview</h4>
+                                <p class="mt-1">Synchronized Bazar Store - Modern Multi-vendor synchronous e-commerce Marketplace. Course: Software Construction & Development.</p>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <h4 class="font-bold text-slate-200">Slide 2: Architectural Pipeline</h4>
+                                <p class="mt-1">Flask architecture, thread-safe EventBroker for Server-Sent Events (SSE), and SQLite schemas.</p>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <h4 class="font-bold text-slate-200">Slide 3: Software Engineering Implementation</h4>
+                                <p class="mt-1">Agile Sprint tracking, CMMI Level 3 defect thresholds, Lehman's laws validation, code scan reports, and pytest automation.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doc Section 4: Deploy -->
+                    <div id="doc-deploy" class="doc-pane hidden space-y-4">
+                        <h3 class="text-lg font-bold text-slate-200">Deployment and Hosting Guide</h3>
+                        <div class="space-y-3 text-xs text-slate-400 leading-relaxed">
+                            <div class="p-3.5 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <h4 class="font-bold text-slate-200">Deploying on Render / Railway</h4>
+                                <ol class="list-decimal list-inside space-y-1 mt-1 text-slate-400">
+                                    <li>Create a PostgreSQL/MySQL database addon.</li>
+                                    <li>Bind environment variables: `SECRET_KEY`, `DATABASE_URL` pointing to production database.</li>
+                                    <li>Set Start Command: `gunicorn app:app` or run python using `python app.py --server-only` to bypass desktop window initialization.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doc Section 5: Report Outline -->
+                    <div id="doc-report" class="doc-pane hidden space-y-4">
+                        <h3 class="text-lg font-bold text-slate-200">Academic Final Report Outline</h3>
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2">
+                            <p class="text-indigo-400 font-bold">1. INTRODUCTION</p>
+                            <p class="text-slate-400 pl-4">1.1 Project Objectives; 1.2 System Requirement Specs (SRS); 1.3 Architectural Design Overview</p>
+                            <p class="text-indigo-400 font-bold mt-3">2. ADVANCED REAL-TIME SYNCHRONIZATION MECHANISM</p>
+                            <p class="text-slate-400 pl-4">2.1 Event Broker Design; 2.2 Server-Sent Events HTTP streaming; 2.3 Concurrency & race condition checks</p>
+                            <p class="text-indigo-400 font-bold mt-3">3. SOFTWARE ENGINEERING PRACTICES SUMMARY</p>
+                            <p class="text-slate-400 pl-4">3.1 Agile Scrum Kanban validation; 3.2 Lehman's Software Evolution laws; 3.3 Code Smell scan algorithms; 3.4 Unit test coverage reports</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
     </div>
 
+    <!-- CART SIDEBAR DRAWER -->
+    <div id="cart-drawer" class="hidden fixed inset-0 z-50 overflow-hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeCart()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-slate-900 border-l border-slate-800 p-6 flex flex-col justify-between shadow-2xl">
+            <div class="space-y-6 flex-1 overflow-y-auto pr-2 console-scrollbar">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <h3 class="header-title text-lg font-bold text-slate-100">🛒 Customer Cart</h3>
+                    <button onclick="closeCart()" class="text-slate-400 hover:text-slate-200">✕</button>
+                </div>
+
+                <div id="cart-items-container" class="space-y-4">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Cart calculations checkout -->
+            <div class="border-t border-slate-800 pt-6 mt-6 space-y-4 text-sm">
+                <div class="flex justify-between text-slate-400">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal" class="font-mono">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Tax (8%):</span>
+                    <span id="cart-tax" class="font-mono">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Shipping:</span>
+                    <span id="cart-shipping" class="font-mono">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-100 font-bold text-base border-t border-slate-850 pt-3">
+                    <span>Grand Total:</span>
+                    <span id="cart-grand-total" class="font-mono text-indigo-400">$0.00</span>
+                </div>
+
+                <button onclick="handleCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer">
+                    Proceed to Order Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATION LOGIN MODAL -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="glass-card rounded-2xl w-full max-w-md p-8 relative z-10 border border-indigo-500/20">
+            <h3 class="header-title text-2xl font-bold text-center bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-6">
+                Welcome to Sync Bazar Store
+            </h3>
+
+            <div class="flex space-x-4 mb-6">
+                <button onclick="switchAuthMode('login')" id="auth-tab-login" class="flex-1 pb-2 border-b-2 border-indigo-500 text-indigo-400 text-sm font-semibold text-center">Login</button>
+                <button onclick="switchAuthMode('register')" id="auth-tab-register" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 text-sm font-semibold text-center">Register</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Username</label>
+                    <input type="text" id="auth-username" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div id="auth-role-container" class="hidden">
+                    <label class="block text-xs text-slate-400 mb-1">Select Account Type</label>
+                    <select id="auth-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <option value="Customer">Customer (Buy products, track orders)</option>
+                        <option value="Vendor">Vendor (Add products, manage stock)</option>
+                        <option value="Admin">Admin (Moderate, system audit)</option>
+                    </select>
+                </div>
+
+                <div id="auth-error" class="hidden text-xs text-red-400 bg-red-950/30 p-3 rounded-lg border border-red-500/10"></div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer">
+                    Sign In
+                </button>
+            </form>
+            
+            <!-- Quick Credentials Seed Hints -->
+            <div class="mt-6 border-t border-slate-800/80 pt-4 text-[10px] text-slate-500 space-y-1">
+                <p class="font-semibold text-slate-400">Quick Test Credentials (Pre-seeded):</p>
+                <p>● <span class="text-indigo-400">Customer:</span> customer1 / customer123</p>
+                <p>● <span class="text-indigo-400">Vendor:</span> vendor1 / vendor123 (also vendor2)</p>
+                <p>● <span class="text-indigo-400">Admin:</span> admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT STATE ENGINE -->
+    <script>
+        let state = {
+            currentUser: null,
+            products: [],
+            cart: [],
+            calculations: { subtotal: 0, tax: 0, shipping: 0, grand_total: 0 },
+            wishlist: [],
+            orders: [],
+            smells: [],
+            logs: [],
+            testResults: [],
+            activeCategory: 'All',
+            authMode: 'login'
+        };
+
+        let spiHistoryChart = null;
+
+        // Initialize application
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            initSSE();
+            initSPIChart();
+        });
+
+        // SSE Real-Time Channel Subscriber
+        function initSSE() {
+            const ticker = document.getElementById('sync-ticker');
+            const syncDot = document.getElementById('sync-dot');
+            const syncStatus = document.getElementById('sync-status');
+            
+            const eventSource = new EventSource('/api/sync/stream');
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    // Push to ticker UI
+                    const time = new Date().toLocaleTimeString();
+                    const logEl = document.createElement('div');
+                    logEl.className = 'border-l pl-2 py-0.5 border-indigo-500 text-slate-300';
+                    logEl.innerHTML = `<span class="text-indigo-400 font-semibold">[${time}]</span> ${message.type.toUpperCase()}: ${JSON.stringify(message.data)}`;
+                    ticker.insertBefore(logEl, ticker.firstChild);
+
+                    // Dynamic response based on broadcast event types
+                    if (message.type === 'stock_update') {
+                        // Dynamically update product stock in state
+                        const pId = message.data.product_id;
+                        const newStock = message.data.new_stock;
+                        const product = state.products.find(p => p.id === pId);
+                        if (product) {
+                            product.stock = newStock;
+                            renderStorefront();
+                            if (state.currentUser && state.currentUser.role === 'Vendor') {
+                                loadVendorProducts();
+                            }
+                        }
+                    } else if (message.type === 'product_added' || message.type === 'product_deleted') {
+                        fetchProducts();
+                    } else if (message.type === 'order_placed' || message.type === 'order_status') {
+                        fetchOrders();
+                        fetchNotifications();
+                    }
+                } catch (e) {
+                    console.error("SSE parse error", e);
+                }
+            };
+
+            eventSource.onerror = (e) => {
+                syncDot.className = "w-2 h-2 rounded-full bg-red-500";
+                syncStatus.textContent = "Sync Stalled";
+                syncStatus.className = "text-red-400 font-mono font-medium";
+            };
+        }
+
+        // Fetch Functions
+        function checkAuth() {
+            fetch('/api/auth/me')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success' && data.user) {
+                        state.currentUser = data.user;
+                        document.getElementById('auth-modal').classList.add('hidden');
+                        renderAuthHeader();
+                        fetchProducts();
+                        fetchCart();
+                        fetchOrders();
+                        fetchWishlist();
+                    } else {
+                        state.currentUser = null;
+                        document.getElementById('auth-modal').classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('auth-modal').classList.remove('hidden');
+                });
+        }
+
+        function fetchProducts() {
+            fetch('/api/products')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        state.products = data.products;
+                        renderStorefront();
+                        renderVendorSection();
+                        renderAdminSection();
+                    }
+                });
+        }
+
+        function fetchCart() {
+            if (!state.currentUser) return;
+            fetch('/api/cart')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        state.cart = data.cart;
+                        state.calculations = data.calculations;
+                        document.getElementById('cart-badge').textContent = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+                        renderCartDrawer();
+                    }
+                });
+        }
+
+        function fetchOrders() {
+            if (!state.currentUser) return;
+            fetch('/api/orders')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        state.orders = data.orders;
+                        renderVendorOrders();
+                    }
+                });
+        }
+
+        function fetchWishlist() {
+            if (!state.currentUser) return;
+            fetch('/api/wishlist')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        state.wishlist = data.wishlist;
+                        renderStorefront();
+                    }
+                });
+        }
+
+        function fetchNotifications() {
+            // Notifications are optional logs, but fetching updates state
+        }
+
+        // Render Functions
+        function renderAuthHeader() {
+            const bar = document.getElementById('auth-bar');
+            if (state.currentUser) {
+                bar.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-slate-300 font-semibold">${state.currentUser.username} (${state.currentUser.role})</span>
+                        <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700/60 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors">
+                            Logout
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderStorefront() {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+            
+            let filtered = state.products;
+            if (state.activeCategory !== 'All') {
+                filtered = state.products.filter(p => p.category === state.activeCategory);
+            }
+
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            if (searchVal) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal) || p.description.toLowerCase().includes(searchVal));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 text-center text-slate-500 py-12">No products found matching filters.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const inWishlist = state.wishlist.some(w => w.product_id === p.id);
+                const stockBadgeColor = p.stock === 0 ? 'bg-red-500/20 text-red-400 border-red-500/30' : p.stock < 10 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+                const stockText = p.stock === 0 ? 'Out of Stock' : `Stock: ${p.stock} units`;
+                return `
+                    <div class="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-48 bg-slate-950 flex items-center justify-center">
+                                <img src="${p.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400'}" alt="${p.name}" class="w-full h-full object-cover opacity-80">
+                                <button onclick="toggleWishlist(${p.id})" class="absolute top-3.5 right-3.5 bg-slate-900/80 p-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-colors">
+                                    ${inWishlist ? '❤️' : '🤍'}
+                                </button>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono">${p.category}</span>
+                                    <span class="text-xs text-amber-400">★ ${p.rating}</span>
+                                </div>
+                                <h3 class="header-title text-base font-bold text-slate-100">${p.name}</h3>
+                                <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${p.description || 'No description provided.'}</p>
+                                <div class="text-[10px] text-slate-500">Listed by: ${p.vendor_name}</div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 border-t border-slate-800/60 flex items-center justify-between">
+                            <div>
+                                <div class="text-sm font-extrabold text-indigo-400 font-mono">$${p.price.toFixed(2)}</div>
+                                <div class="text-[10px] border px-1.5 py-0.5 rounded-full mt-1.5 inline-block font-mono ${stockBadgeColor}">
+                                    ${stockText}
+                                </div>
+                            </div>
+                            <button onclick="addToCart(${p.id})" ${p.stock === 0 ? 'disabled class="bg-slate-800 text-slate-600 px-3.5 py-2.5 rounded-xl text-xs cursor-not-allowed"' : 'class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3.5 py-2.5 rounded-xl text-xs transition-colors cursor-pointer"'} >
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Cart handlers
+        function openCart() {
+            document.getElementById('cart-drawer').classList.remove('hidden');
+            fetchCart();
+        }
+
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.add('hidden');
+        }
+
+        function addToCart(pId) {
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: pId, quantity: 1 })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Item added to cart successfully!");
+                    fetchCart();
+                } else {
+                    showError(data.message);
+                }
+            });
+        }
+
+        function updateCartQty(itemId, newQty) {
+            fetch(`/api/cart/${itemId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: newQty })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchCart();
+                }
+            });
+        }
+
+        function removeCartItem(itemId) {
+            fetch(`/api/cart/${itemId}`, {
+                method: 'DELETE'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchCart();
+                }
+            });
+        }
+
+        function toggleWishlist(pId) {
+            fetch('/api/wishlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: pId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchWishlist();
+                }
+            });
+        }
+
+        function renderCartDrawer() {
+            const container = document.getElementById('cart-items-container');
+            if (state.cart.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 py-12 text-sm">Your cart is empty.</div>`;
+                return;
+            }
+            container.innerHTML = state.cart.map(item => `
+                <div class="flex items-center space-x-3.5 bg-slate-950/40 p-3.5 rounded-xl border border-slate-800">
+                    <img src="${item.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400'}" class="w-12 h-12 object-cover rounded-lg">
+                    <div class="flex-1 space-y-1">
+                        <div class="text-xs font-bold text-slate-200 line-clamp-1">${item.product_name}</div>
+                        <div class="text-[11px] text-indigo-400 font-mono">$${item.price.toFixed(2)} each</div>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <button onclick="updateCartQty(${item.id}, ${item.quantity - 1})" class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-xs">-</button>
+                            <span class="text-xs text-slate-300 font-mono">${item.quantity}</span>
+                            <button onclick="updateCartQty(${item.id}, ${item.quantity + 1})" class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-slate-300 font-mono">$${item.subtotal.toFixed(2)}</div>
+                        <button onclick="removeCartItem(${item.id})" class="text-[10px] text-red-400 hover:text-red-300 mt-1 block">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Totals
+            document.getElementById('cart-subtotal').textContent = `$${state.calculations.subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').textContent = `$${state.calculations.tax.toFixed(2)}`;
+            document.getElementById('cart-shipping').textContent = `$${state.calculations.shipping.toFixed(2)}`;
+            document.getElementById('cart-grand-total').textContent = `$${state.calculations.grand_total.toFixed(2)}`;
+        }
+
+        // Checkout order
+        function handleCheckout() {
+            closeCart();
+            fetch('/api/orders/checkout', {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess(`Order #${data.order_id} placed successfully! Check Live Sync alerts.`);
+                    fetchCart();
+                    fetchProducts();
+                    fetchOrders();
+                } else {
+                    // Exception trigger
+                    showError(data.message);
+                }
+            });
+        }
+
+        // Vendor Dashboard Render
+        function renderVendorSection() {
+            if (!state.currentUser || state.currentUser.role !== 'Vendor') return;
+            const vendorProds = state.products.filter(p => p.vendor_id === state.currentUser.id);
+            
+            document.getElementById('vendor-product-count').textContent = vendorProds.length;
+            
+            // warning counts for stocks < 10
+            const underStock = vendorProds.filter(p => p.stock < 10).length;
+            document.getElementById('vendor-warning-count').textContent = underStock;
+
+            loadVendorProducts();
+        }
+
+        function loadVendorProducts() {
+            const body = document.getElementById('vendor-products-body');
+            const vendorProds = state.products.filter(p => p.vendor_id === state.currentUser.id);
+            
+            if (vendorProds.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No product listings published yet.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = vendorProds.map(p => `
+                <tr class="border-b border-slate-800">
+                    <td class="p-3 font-semibold text-slate-200">${p.name}</td>
+                    <td class="p-3 text-right font-mono text-indigo-400">$${p.price.toFixed(2)}</td>
+                    <td class="p-3 text-center font-mono text-slate-300">${p.stock}</td>
+                    <td class="p-3 flex items-center justify-center space-x-2">
+                        <button onclick="changeStock(${p.id}, ${p.stock - 5})" class="bg-slate-800 hover:bg-slate-700/60 px-2 py-1 rounded text-xs">-5</button>
+                        <button onclick="changeStock(${p.id}, ${p.stock + 5})" class="bg-slate-800 hover:bg-slate-700/60 px-2 py-1 rounded text-xs">+5</button>
+                        <button onclick="deleteProduct(${p.id})" class="text-xs text-red-400 hover:text-red-300 ml-4">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function changeStock(pId, newStock) {
+            if (newStock < 0) newStock = 0;
+            fetch(`/api/products/${pId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock: newStock })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchProducts();
+                }
+            });
+        }
+
+        function deleteProduct(pId) {
+            fetch(`/api/products/${pId}`, {
+                method: 'DELETE'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Product deleted successfully!");
+                    fetchProducts();
+                }
+            });
+        }
+
+        function handleCreateProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value;
+            const category = document.getElementById('p-category').value;
+            const price = parseFloat(document.getElementById('p-price').value);
+            const stock = parseInt(document.getElementById('p-stock').value);
+            const desc = document.getElementById('p-desc').value;
+
+            fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, category, price, stock, description: desc })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Product listed successfully!");
+                    document.getElementById('product-form').reset();
+                    fetchProducts();
+                } else {
+                    showError(data.message);
+                }
+            });
+        }
+
+        function renderVendorOrders() {
+            const body = document.getElementById('vendor-orders-body');
+            if (!body) return;
+
+            if (state.orders.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No active orders placed yet.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = state.orders.map(order => {
+                const itemDescs = order.items.map(item => `${item.product_name} (x${item.quantity})`).join(', ');
+                let statusBadge = order.status === 'Pending' ? 'bg-amber-500/20 text-amber-400' : order.status === 'Processing' ? 'bg-sky-500/20 text-sky-400' : order.status === 'Shipped' ? 'bg-purple-500/20 text-purple-400' : 'bg-emerald-500/20 text-emerald-400';
+                
+                return `
+                    <tr class="border-b border-slate-800">
+                        <td class="p-3 font-mono font-bold text-slate-200">#${order.id}</td>
+                        <td class="p-3 text-slate-300">${order.customer_name}</td>
+                        <td class="p-3 text-slate-400 max-w-xs truncate">${itemDescs}</td>
+                        <td class="p-3 text-right font-mono text-indigo-400">$${order.total_amount.toFixed(2)}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2 py-0.5 rounded text-xs font-semibold ${statusBadge}">${order.status}</span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <select onchange="updateOrderStatus(${order.id}, this.value)" class="bg-slate-900 border border-slate-800 rounded p-1 text-xs text-slate-300">
+                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            fetch(`/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess(`Order #${orderId} status set to '${newStatus}'`);
+                    fetchOrders();
+                }
+            });
+        }
+
+        // Admin Dashboard Render
+        function renderAdminSection() {
+            if (!state.currentUser || state.currentUser.role !== 'Admin') return;
+            const moderationDiv = document.getElementById('admin-product-moderation-list');
+            if (!moderationDiv) return;
+
+            moderationDiv.innerHTML = state.products.map(p => `
+                <div class="flex items-center justify-between p-3.5 bg-slate-900/60 rounded-xl border border-slate-800">
+                    <div>
+                        <div class="font-medium text-slate-200 text-sm">${p.name}</div>
+                        <span class="text-xs text-slate-500">Category: ${p.category} | Vendor: ${p.vendor_name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs px-2 py-0.5 rounded ${p.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">${p.status}</span>
+                        <button onclick="moderateProduct(${p.id}, '${p.status === 'Approved' ? 'Pending' : 'Approved'}')" class="bg-slate-800 hover:bg-slate-700/60 border border-slate-700 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg">
+                            Toggle Status
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moderateProduct(pId, newStatus) {
+            fetch(`/api/products/${pId}/moderate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Product status modified successfully!");
+                    fetchProducts();
+                }
+            });
+        }
+
+        // CMMI / SPI Calculator
+        function handleSPIAssessment(e) {
+            e.preventDefault();
+            const defect = parseFloat(document.getElementById('spi-defect').value);
+            const velocity = parseInt(document.getElementById('spi-velocity').value);
+            const level = parseInt(document.getElementById('spi-cmmi-level').value);
+
+            fetch('/api/process/assess', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ defect_density: defect, velocity, maturity_level: level })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess(`SPI Assessment Complete! Score: ${data.assessment.maturity_score}`);
+                    document.getElementById('spi-defect').value = '';
+                    document.getElementById('spi-velocity').value = '';
+                    fetchSPIHistory();
+                } else {
+                    // CMMI Level Exception Interception
+                    showError(data.message);
+                }
+            });
+        }
+
+        function fetchSPIHistory() {
+            fetch('/api/process/history')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateSPIChart(data.history);
+                    }
+                });
+        }
+
+        function initSPIChart() {
+            const ctx = document.getElementById('spiHistoryChart');
+            if (!ctx) return;
+            spiHistoryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Maturity Score',
+                            data: [],
+                            borderColor: 'rgb(99, 102, 241)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Defect Density',
+                            data: [],
+                            borderColor: 'rgb(244, 63, 94)',
+                            backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+            fetchSPIHistory();
+        }
+
+        function updateSPIChart(history) {
+            if (!spiHistoryChart) return;
+            spiHistoryChart.data.labels = history.map(h => h.created_at.split(' ')[1]); // Time only
+            spiHistoryChart.data.datasets[0].data = history.map(h => h.maturity_score);
+            spiHistoryChart.data.datasets[1].data = history.map(h => h.defect_density);
+            spiHistoryChart.update();
+        }
+
+        // Git Mock Commits
+        function handleGitCommit(e) {
+            e.preventDefault();
+            const message = document.getElementById('git-message').value;
+            const branch = document.getElementById('git-branch').value;
+
+            fetch('/api/git/commit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, branch })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Mock Git Commit Created!");
+                    document.getElementById('git-message').value = '';
+                    fetchGitHistory();
+                }
+            });
+        }
+
+        function fetchGitHistory() {
+            fetch('/api/git/history')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const container = document.getElementById('git-history-container');
+                        if (data.history.length === 0) {
+                            container.innerHTML = `<div class="text-slate-500 text-center py-6 text-xs">No commits.</div>`;
+                            return;
+                        }
+                        container.innerHTML = data.history.map(commit => `
+                            <div class="border-l-2 border-indigo-500 pl-4 py-1 relative">
+                                <div class="w-3 h-3 bg-indigo-500 rounded-full absolute -left-1.5 top-2 border-2 border-slate-900"></div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-slate-200">${commit.message}</span>
+                                    <span class="font-mono text-slate-500 text-[10px]">${commit.hash.substring(0,7)}</span>
+                                </div>
+                                <div class="text-[10px] text-slate-500 mt-1">Author: ${commit.author} | ${commit.date}</div>
+                            </div>
+                        `).join('');
+                    }
+                });
+        }
+
+        // Code Smell scanner
+        function runCodeSmellScan() {
+            showSuccess("Static code scanning started... parses lines, parameters, and global coupling structures.");
+            fetch('/api/legacy/scan', {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess(`Code scan complete! Found ${data.count} smells.`);
+                    loadCodeSmells();
+                }
+            });
+        }
+
+        function loadCodeSmells() {
+            fetch('/api/legacy/smells')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const body = document.getElementById('code-smells-body');
+                        if (data.smells.length === 0) {
+                            body.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Workspace clean! No smells found.</td></tr>`;
+                            return;
+                        }
+                        body.innerHTML = data.smells.map(s => `
+                            <tr class="border-b border-slate-800 ${s.resolved ? 'opacity-40' : ''}">
+                                <td class="p-3 font-mono text-[10px] text-slate-400">
+                                    ${s.file_path}<br>
+                                    <span class="text-indigo-400">Lines: ${s.line_start}-${s.line_end}</span>
+                                </td>
+                                <td class="p-3 text-slate-200">
+                                    <span class="bg-red-950/40 text-red-400 border border-red-500/20 text-[10px] px-1.5 py-0.5 rounded font-mono font-medium">${s.smell_type}</span>
+                                </td>
+                                <td class="p-3 text-xs text-slate-300 leading-relaxed">${s.description}</td>
+                                <td class="p-3 text-center">
+                                    ${s.resolved ? '<span class="text-emerald-400 text-xs font-semibold">Resolved</span>' : `
+                                        <button onclick="resolveCodeSmell(${s.id})" class="bg-indigo-900/60 border border-indigo-500/20 hover:border-indigo-400 text-indigo-300 text-xs px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">
+                                            Resolve
+                                        </button>
+                                    `}
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        function resolveCodeSmell(smellId) {
+            fetch(`/api/legacy/resolve/${smellId}`, {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess("Refactoring complete! Code smell resolved.");
+                    loadCodeSmells();
+                }
+            });
+        }
+
+        // PyTest Runner
+        function executePytests() {
+            const btn = document.getElementById('run-tests-btn');
+            const term = document.getElementById('test-console-output');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳ Running PyTest...</span>`;
+            term.textContent = "Launching pytest subprocess on tests/ folder...\nExecuting test assertions...";
+
+            fetch('/api/testing/run', {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>🧪 Run Suite</span>`;
+
+                if (data.status === 'success') {
+                    showSuccess("Unit tests assertion executed successfully!");
+                    term.textContent = data.output;
+                    
+                    // Render totals
+                    document.getElementById('test-passed-count').textContent = data.summary.passed;
+                    document.getElementById('test-failed-count').textContent = data.summary.failed;
+                    document.getElementById('test-total-count').textContent = data.summary.total;
+                    
+                    const rate = data.summary.total > 0 ? Math.round((data.summary.passed / data.summary.total) * 100) : 0;
+                    document.getElementById('test-pass-rate').textContent = `${rate}%`;
+                    document.getElementById('test-progress-bar').style.width = `${rate}%`;
+
+                    // Render assertions details
+                    const list = document.getElementById('test-assertions-list');
+                    list.innerHTML = data.results.map(r => {
+                        const statusColor = r.status === 'PASSED' ? 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20' : 'text-red-400 bg-red-950/20 border-red-500/20';
+                        return `
+                            <div class="flex items-center justify-between p-2 rounded border ${statusColor}">
+                                <span class="font-mono text-[10px] truncate max-w-[200px]">${r.test_name.split('::')[1]}</span>
+                                <span class="font-bold font-mono text-[9px] uppercase">${r.status}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    term.textContent = "Execution Error:\n" + data.message;
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>🧪 Run Suite</span>`;
+                term.textContent = "Connection Failure:\n" + err;
+            });
+        }
+
+        // JSON structured logs
+        function fetchAppLogs() {
+            fetch('/api/legacy/logs')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const container = document.getElementById('logs-container');
+                        container.innerHTML = data.logs.map(log => {
+                            let badgeColor = log.level === 'ERROR' ? 'bg-red-500/20 text-red-400 border-red-500/20' : log.level === 'WARNING' ? 'bg-amber-500/20 text-amber-400 border-amber-500/20' : 'bg-slate-800 text-slate-400 border-slate-700';
+                            return `
+                                <div class="bg-slate-900 border border-slate-800/80 p-3 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between text-xs font-mono">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="px-1.5 py-0.5 rounded border text-[9px] font-bold ${badgeColor}">${log.level}</span>
+                                            <span class="text-slate-500 text-[10px]">${log.time}</span>
+                                        </div>
+                                        <div class="text-slate-300 pl-1 mt-1">${log.message}</div>
+                                    </div>
+                                    <span class="text-[10px] text-indigo-400 mt-2 md:mt-0 font-medium">[${log.module}]</span>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                });
+        }
+
+        // Exception triggers
+        function triggerAPIError(endpoint, body = {}, method = 'POST') {
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (method !== 'GET') {
+                options.body = JSON.stringify(body);
+            }
+
+            fetch(endpoint, options)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        showError(`Exception Intercepted: [Status ${data.error || '500'}] ${data.message}`);
+                        fetchAppLogs();
+                    } else {
+                        showSuccess("Action executed without errors.");
+                    }
+                })
+                .catch(err => {
+                    showError("Client Connection Error: " + err);
+                });
+        }
+
+        // Auth form submit
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('auth-username').value;
+            const password = document.getElementById('auth-password').value;
+            const role = document.getElementById('auth-role').value;
+            const errDiv = document.getElementById('auth-error');
+
+            errDiv.classList.add('hidden');
+            const endpoint = state.authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+            const body = { username, password };
+            if (state.authMode === 'register') {
+                body.role = role;
+                body.email = `${username}@syncbazar.com`;
+            }
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    checkAuth();
+                } else {
+                    errDiv.textContent = data.message;
+                    errDiv.classList.remove('hidden');
+                }
+            });
+        }
+
+        function handleLogout() {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(() => checkAuth());
+        }
+
+        function switchAuthMode(mode) {
+            state.authMode = mode;
+            const loginBtn = document.getElementById('auth-tab-login');
+            const regBtn = document.getElementById('auth-tab-register');
+            const roleDiv = document.getElementById('auth-role-container');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if (mode === 'register') {
+                loginBtn.className = "flex-1 pb-2 border-b-2 border-transparent text-slate-400 text-sm font-semibold text-center";
+                regBtn.className = "flex-1 pb-2 border-b-2 border-indigo-500 text-indigo-400 text-sm font-semibold text-center";
+                roleDiv.classList.remove('hidden');
+                submitBtn.textContent = "Register Account";
+            } else {
+                loginBtn.className = "flex-1 pb-2 border-b-2 border-indigo-500 text-indigo-400 text-sm font-semibold text-center";
+                regBtn.className = "flex-1 pb-2 border-b-2 border-transparent text-slate-400 text-sm font-semibold text-center";
+                roleDiv.classList.add('hidden');
+                submitBtn.textContent = "Sign In";
+            }
+        }
+
+        // Page Tabs
+        function switchTab(tabId) {
+            // Hide all
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            // Remove active style from all side-btns
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800/40 hover:text-slate-200";
+            });
+
+            // Show active pane
+            document.getElementById(tabId).classList.remove('hidden');
+            // Add active style to side-btn
+            document.getElementById(`btn-${tabId}`).className = "tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-indigo-400 bg-slate-800/80 shadow-inner";
+
+            // Trigger Tab-specific data loading
+            if (tabId === 'marketplace-tab') {
+                fetchProducts();
+            } else if (tabId === 'vendor-tab') {
+                renderVendorSection();
+                fetchOrders();
+            } else if (tabId === 'admin-tab') {
+                renderAdminSection();
+            } else if (tabId === 'git-tab') {
+                fetchGitHistory();
+            } else if (tabId === 'refactor-tab') {
+                loadCodeSmells();
+            } else if (tabId === 'logs-tab') {
+                fetchAppLogs();
+            }
+        }
+
+        // Subtabs in documentation hub
+        function switchDocTab(paneId) {
+            document.querySelectorAll('.doc-pane').forEach(pane => pane.classList.add('hidden'));
+            document.querySelectorAll('.doc-tab-btn').forEach(btn => {
+                btn.className = "doc-tab-btn pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200";
+            });
+
+            document.getElementById(paneId).classList.remove('hidden');
+            event.target.className = "doc-tab-btn pb-3 border-b-2 border-indigo-500 text-indigo-400";
+        }
+
+        // Filter handlers
+        function filterCategory(cat) {
+            state.activeCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.textContent.trim() === cat) {
+                    btn.className = "category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow";
+                } else {
+                    btn.className = "category-btn px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/60 text-slate-300";
+                }
+            });
+            renderStorefront();
+        }
+
+        function filterProducts() {
+            renderStorefront();
+        }
+
+        // Notification popups
+        function showError(msg) {
+            const banner = document.getElementById('alert-banner');
+            document.getElementById('alert-message').textContent = msg;
+            banner.classList.remove('hidden');
+            setTimeout(closeAlert, 8000);
+        }
+
+        function showSuccess(msg) {
+            const banner = document.getElementById('success-banner');
+            document.getElementById('success-message').textContent = msg;
+            banner.classList.remove('hidden');
+            setTimeout(closeSuccess, 5000);
+        }
+
+        function closeAlert() {
+            document.getElementById('alert-banner').classList.add('hidden');
+        }
+
+        function closeSuccess() {
+            document.getElementById('success-banner').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
