@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Bazar - SE Dashboard</title>
+    <!-- Tailwind CSS for modern look -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <h1 class="text-2xl font-bold">Sync Bazar - Desktop Suite</h1>
+        <p class="text-xs opacity-80">Software Process & Quality Management Application</p>
+    </header>
+
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- 1. Process Models & SPI -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
+            <h2 class="text-xl font-bold mb-3 text-gray-800">1. Process Model & SPI Tracker</h2>
+            <p class="text-sm text-gray-600 mb-4">CMMI Maturity frameworks and metric tracking.</p>
+            <div class="space-y-2">
+                <button onclick="alert('Agile Model Selected!')" class="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 w-full text-left">✦ Select Process Model (Agile/Waterfall)</button>
+                <button onclick="alert('SPI Calculator: Defect Density is within limits.')" class="bg-emerald-500 text-white px-4 py-2 rounded text-sm hover:bg-emerald-600 w-full text-left">📊 Run SPI Assessment</button>
+            </div>
+        </div>
+
+        <!-- 2. Version Control & Reviews -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
+            <h2 class="text-xl font-bold mb-3 text-gray-800">2. Version Control & Code Review</h2>
+            <p class="text-sm text-gray-600 mb-4">Manage mock repositories and code quality reviews.</p>
+            <div class="space-y-2">
+                <button onclick="alert('Mock Git: Branch main is up to date.')" class="bg-purple-500 text-white px-4 py-2 rounded text-sm hover:bg-purple-600 w-full text-left">⌥ Check Git Status</button>
+                <button onclick="alert('Opening Code Review Interface...')" class="bg-indigo-500 text-white px-4 py-2 rounded text-sm hover:bg-indigo-600 w-full text-left">✍ Start Code Review</button>
+            </div>
+        </div>
+
+        <!-- 3. Legacy Refactoring & Exceptions -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-amber-500">
+            <h2 class="text-xl font-bold mb-3 text-gray-800">3. Legacy Code & Error Logging</h2>
+            <p class="text-sm text-gray-600 mb-4">Identify code smells and trigger safe exception handling.</p>
+            <button onclick="alert('Code Smells found: 3 God Objects, 5 Long Methods.')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm hover:bg-amber-600 w-full mb-2 block text-left">🔍 Scan for Code Smells</button>
+            <button onclick="fetch('/trigger-error').then(r => r.json()).then(d => alert('System Intercepted Error: ' + d.message))" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 w-full text-left">🚨 Test Exception Handling</button>
+        </div>
+
+        <!-- 4. Automated Unit Testing -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-emerald-500">
+            <h2 class="text-xl font-bold mb-3 text-gray-800">4. Automated Testing Suite</h2>
+            <p class="text-sm text-gray-600 mb-4">Run unit and integration tests instantly.</p>
+            <button onclick="alert('Running PyTest... 4/4 Tests Passed (100% Coverage)')" class="bg-emerald-600 text-white px-4 py-2 rounded text-sm hover:bg-emerald-700 w-full text-left">🧪 Run Automated Tests</button>
+        </div>
+
+    </div>
+
+</body>
+</html>
