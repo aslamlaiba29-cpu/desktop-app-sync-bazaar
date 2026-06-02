@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: ./microservices/gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PROCESS_SERVICE_URL=http://process:5001
+      - GIT_SERVICE_URL=http://git:5002
+      - INSPECTION_SERVICE_URL=http://inspection:5003
+      - TESTING_SERVICE_URL=http://testing:5004
+    depends_on:
+      - process
+      - git
+      - inspection
+      - testing
+
+  process:
+    build: ./microservices/process
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data/process:/app/instance
+
+  git:
+    build: ./microservices/git
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./data/git:/app/instance
+
+  inspection:
+    build: ./microservices/inspection
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./data/inspection:/app/instance
+
+  testing:
+    build: ./microservices/testing
+    ports:
+      - "5004:5004"
+    volumes:
+      - ./data/testing:/app/instance
+
+  frontend:
+    build: ./microservices/frontend
+    ports:
+      - "3000:3000"
