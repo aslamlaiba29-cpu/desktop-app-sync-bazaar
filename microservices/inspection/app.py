@@ -35,5 +35,9 @@ def add_smell():
     db.session.commit()
     return jsonify(smell.to_dict()), 201
 
+@app.route('/api/inspection/scan', methods=['GET'])
+def scan_smells():
+    return jsonify({"message": "Found 3 God Objects and 5 Long Methods."}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5003, debug=True)

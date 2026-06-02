@@ -48,5 +48,9 @@ def add_spi_record(model_id):
 def trigger_error():
     return jsonify({"status": "error", "message": "SPI Metric Assessment failed: Defect density is too high for CMMI Level 3!"}), 400
 
+@app.route('/api/process/spi/run', methods=['GET'])
+def run_spi():
+    return jsonify({"result": "Defect Density is within limits for CMMI Level 3."}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

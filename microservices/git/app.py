@@ -33,5 +33,9 @@ def add_repo():
     db.session.commit()
     return jsonify(repo.to_dict()), 201
 
+@app.route('/api/git/status', methods=['GET'])
+def git_status():
+    return jsonify({"status": "Branch main is up to date with origin/main."}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)
